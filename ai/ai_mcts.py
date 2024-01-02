@@ -22,9 +22,9 @@ def result(board: chess.Board) -> float:
     return None
 
 def ucb_score(parent: Node, child: Node) -> float:
-    prior_score = child.prior * math.sqrt(parent.visit_count) /\
-        (child.visit_count + 1)
-    value_score = 0 if child.visit_count == 0 else -child.value()
+    prior_score = child.prior * math.sqrt(parent.num_visits) /\
+        (child.num_visits + 1)
+    value_score = 0 if child.num_visits == 0 else -child.value()
     return value_score + prior_score
 
 class Node:
@@ -63,29 +63,60 @@ class Node:
 
         return best_action, best_child
     
-    def expand(self, state: State, current_player: chess.Color, action_probs):
+    def expand(self,
+        state: State,
+        actions: list[Action],
+        action_probs: np.ndarray[float],
+    ):
         """
         Expand this node and track the prior probability (e.g. given by a policy
         network).
         """
 
-        self.current_player = current_player
         self.state = state
 
-        for a, prob in enumerate(action_probs):
+        for i in range(len(actions)):
+            action, prob = actions[i], action_probs[i]
+
             if prob != 0:
-                self.children[a] = Node(
+                self.children[action] = Node(
                     prior=prob,
                     # self.current_player is chess.Color which is a bool
-                    current_player=self.current_player ^ 1
+                    current_player=self.current_player ^ True
                 )
+    
+    def __str__(self) -> str:
+        sb = f"{repr(self)}\n"
+        sb += str(chess.Board(self.state))
+
+        for action, child in self.children.items():
+            sb += f"\n{action}: {repr(child)}"
+
+        return sb
+
+    def __repr__(self) -> str:
+        return f"Node(prior={self.prior}, current_player={self.current_player}, num_visits={self.num_visits}, value_sum={self.value_sum}, state={self.state})"
 
 class AIMCTS(Player):
+    def playout(self, state: State) -> float:
+        """
+        Play a random game from the given board state and return the result.
+        """
+
+        board = chess.Board(state)
+
+        while not board.is_game_over():
+            action = np.random.choice(list(board.legal_moves))
+            board.push(action)
+
+        return result(board)
+
     def run(
         self,
         state: State,
         current_player: chess.Color,
-        num_simulations=10,
+        num_simulations=100,
+        num_playouts=1,
     ) -> Node:
         """
         Perform Monte Carlo tree search: run @self.num_simulations simulations
@@ -98,7 +129,9 @@ class AIMCTS(Player):
         current_board = chess.Board(state)
         actions = list(current_board.legal_moves)
         action_probs = np.ones(len(actions)) / len(actions)
-        root.expand(state, current_player, action_probs)
+
+
+        root.expand(state, actions, action_probs)
 
         for _ in range(num_simulations):
             node = root
@@ -108,10 +141,6 @@ class AIMCTS(Player):
             while node.is_expanded():
                 action, node = node.select_child()
                 search_path.append(node)
-
-            # TODO Test current player is indeed correct
-            current_player_at_leaf: chess.Color =\
-                current_player ^ len(search_path) % 2
             
             parent = search_path[-2]
             state = parent.state
@@ -130,13 +159,20 @@ class AIMCTS(Player):
                 # Stage: EXPAND
                 actions = list(board_at_leaf_node.legal_moves)
                 action_probs = np.ones(len(actions)) / len(actions)
-                node.expand(next_state, current_player_at_leaf, action_probs)
+                node.expand(next_state, actions, action_probs)
+                
+                # Stage: PLAYOUT
+                acc_value = 0.0
+                for _ in range(num_playouts):
+                    acc_value += self.playout(next_state)
+                
+                value = acc_value / num_playouts
 
             # Get value from perspective of other player
-            if current_player_at_leaf == chess.BLACK:
+            if node.current_player == chess.BLACK:
                 value *= -1
 
-            self.backprop(search_path, value, parent.current_player ^ 1)
+            self.backprop(search_path, value, parent.current_player ^ True)
 
         return root
 
@@ -144,16 +180,10 @@ class AIMCTS(Player):
         for node in reversed(search_path):
             node.value_sum += value if node.current_player == current_player\
                 else -value
-            node.visit_count += 1
+            node.num_visits += 1
 
     def choose_move(self, position: str) -> str:
-        root = self.run(position, self.color)
-
-        return NotImplemented
-
-if __name__ == "__main__":
-    # ai = AIMCTS(chess.WHITE)
-    # ai.choose_move(chess.STARTING_FEN)
-
-    SCHOLARS_MATE = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3"
-    print(result(chess.Board(SCHOLARS_MATE)))
+        root = self.run(position, self.color, num_simulations=100, num_playouts=1)
+        print(root)
+        action, _ = root.select_child()
+        return action.uci()
