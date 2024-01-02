@@ -1,6 +1,6 @@
 import chess
 
-from ai_random import AIRandom
+from ai.ai_random import AIRandom
 from game import Game
 from player_human import PlayerHuman
 

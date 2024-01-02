@@ -1,7 +1,7 @@
 import chess
 import pytest
 
-from ai_random import AIRandom
+from ai.ai_random import AIRandom
 
 @pytest.mark.parametrize("AI", [AIRandom])
 def test_ai_chooses_legal_move(AI):

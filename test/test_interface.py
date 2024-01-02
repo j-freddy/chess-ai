@@ -4,7 +4,7 @@ from unittest import mock
 
 from game import Game
 from player_human import PlayerHuman
-from ai_random import AIRandom
+from ai.ai_random import AIRandom
 
 @pytest.mark.parametrize("user_input", ["e4", "e2e4", "invalidmove"])
 def test_human_player_can_enter_input_move(user_input):
