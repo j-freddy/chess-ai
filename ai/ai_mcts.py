@@ -177,7 +177,12 @@ class AIMCTS(Player):
 
         return root
 
-    def backprop(self, search_path, value, current_player: chess.Color):
+    def backprop(
+        self,
+        search_path: list[Node],
+        value: float,
+        current_player: chess.Color,
+    ):
         for node in reversed(search_path):
             node.value_sum += value if node.current_player == current_player\
                 else -value

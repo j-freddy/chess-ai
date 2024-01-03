@@ -1,9 +1,10 @@
 import chess
 import pytest
 
+from ai.ai_mcts import AIMCTS
 from ai.ai_random import AIRandom
 
-@pytest.mark.parametrize("AI", [AIRandom])
+@pytest.mark.parametrize("AI", [AIRandom, AIMCTS])
 # pylint: disable=invalid-name
 def test_ai_chooses_legal_move(AI):
     ai = AI(chess.WHITE)
