@@ -55,6 +55,15 @@ python -m main -white human -black aimcts
 
 ## Contribute
 
+### Test
+
+```sh
+# Run tests
+pytest
+# Run tests with coverage report
+pytest --cov
+```
+
 ### Update Dependencies
 
 ```sh
