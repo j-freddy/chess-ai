@@ -17,7 +17,7 @@ class Game:
             self.board.push_san(move)
             # Move must be valid if no exception thrown
             return True
-        
+
         # Human player: validate move
 
         is_valid_move = False
@@ -43,12 +43,12 @@ class Game:
             while not is_valid_move:
                 move = self.current_player.choose_move(self.board.fen())
                 is_valid_move = self._make_move(move)
-            
+
             # Switch players
             self.current_player = self.player_black\
                 if self.current_player == self.player_white\
                 else self.player_white
 
             print(self.board)
-        
+
         print(f"Game over: {self.board.result()}")

@@ -1,8 +1,8 @@
 from __future__ import annotations
-import chess
 import math
-import numpy as np
 from typing import TypeAlias
+import chess
+import numpy as np
 
 from player import Player
 
@@ -14,11 +14,11 @@ def result(board: chess.Board) -> float:
 
     if r == "1-0":
         return 1.0
-    elif r == "0-1":
+    if r == "0-1":
         return -1.0
-    elif r == "1/2-1/2":
+    if r == "1/2-1/2":
         return 0.0
-    
+
     return None
 
 def ucb_score(parent: Node, child: Node) -> float:
@@ -62,7 +62,7 @@ class Node:
                 best_child = child
 
         return best_action, best_child
-    
+
     def expand(self,
         state: State,
         actions: list[Action],
@@ -84,7 +84,7 @@ class Node:
                     # self.current_player is chess.Color which is a bool
                     current_player=self.current_player ^ True
                 )
-    
+
     def __str__(self) -> str:
         sb = f"{repr(self)}\n"
         sb += str(chess.Board(self.state))
@@ -95,6 +95,7 @@ class Node:
         return sb
 
     def __repr__(self) -> str:
+        # pylint: disable=line-too-long
         return f"Node(prior={self.prior}, current_player={self.current_player}, num_visits={self.num_visits}, value_sum={self.value_sum}, state={self.state})"
 
 class AIMCTS(Player):
@@ -141,7 +142,7 @@ class AIMCTS(Player):
             while node.is_expanded():
                 action, node = node.select_child()
                 search_path.append(node)
-            
+
             parent = search_path[-2]
             state = parent.state
 
@@ -160,12 +161,12 @@ class AIMCTS(Player):
                 actions = list(board_at_leaf_node.legal_moves)
                 action_probs = np.ones(len(actions)) / len(actions)
                 node.expand(next_state, actions, action_probs)
-                
+
                 # Stage: PLAYOUT
                 acc_value = 0.0
                 for _ in range(num_playouts):
                     acc_value += self.playout(next_state)
-                
+
                 value = acc_value / num_playouts
 
             # Get value from perspective of other player
@@ -183,7 +184,12 @@ class AIMCTS(Player):
             node.num_visits += 1
 
     def choose_move(self, position: str) -> str:
-        root = self.run(position, self.color, num_simulations=100, num_playouts=1)
+        root = self.run(
+            position,
+            self.color,
+            num_simulations=100,
+            num_playouts=1,
+        )
         print(root)
         action, _ = root.select_child()
         return action.uci()

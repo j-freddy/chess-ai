@@ -1,6 +1,6 @@
+from unittest import mock
 import chess
 import pytest
-from unittest import mock
 
 from game import Game
 from player_human import PlayerHuman
