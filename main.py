@@ -27,19 +27,26 @@ def parse_args():
         type=str,
         help=f"Black player. Options: {player_class_ids()}",
     )
+    parser.add_argument(
+        "-startpos",
+        type=str,
+        help="Starting position in FEN. Default: standard position.",
+        default=chess.STARTING_FEN,
+    )
 
     args = parser.parse_args()
 
     player_white_class = id_to_player_class[args.white]
     player_black_class = id_to_player_class[args.black]
 
-    return player_white_class, player_black_class
+    return player_white_class, player_black_class, args.startpos
 
 if __name__=="__main__":
-    PlayerWhite, PlayerBlack = parse_args()
+    PlayerWhite, PlayerBlack, start_pos = parse_args()
 
     game = Game(
         player_white=PlayerWhite(chess.WHITE),
         player_black=PlayerBlack(chess.BLACK),
+        start_pos=start_pos,
     )
     game.play()

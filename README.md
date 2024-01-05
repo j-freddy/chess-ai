@@ -40,12 +40,13 @@ python -m main -white airandom -black airandom
 ### Usage
 
 ```sh
-usage: main.py [-h] [-white WHITE] [-black BLACK]
+usage: main.py [-h] [-white WHITE] [-black BLACK] [-startpos STARTPOS]
 
 options:
-  -h, --help    show this help message and exit
-  -white WHITE  White player. Options: human, airandom, aimcts
-  -black BLACK  Black player. Options: human, airandom, aimcts
+  -h, --help          show this help message and exit
+  -white WHITE        White player. Options: human, airandom, aimcts
+  -black BLACK        Black player. Options: human, airandom, aimcts
+  -startpos STARTPOS  Starting position in FEN. Default: standard position.
 ```
 
 For example, to play White against a smart AI, run the command below.
