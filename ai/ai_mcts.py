@@ -27,6 +27,35 @@ def ucb_score(parent: Node, child: Node) -> float:
     value_score = 0 if child.num_visits == 0 else -child.value()
     return value_score + prior_score
 
+CHECKMATE_VALUE = 10000
+piece_to_value: dict[chess.PieceType, float] = {
+    chess.PAWN: 1.0,
+    chess.KNIGHT: 3.0,
+    chess.BISHOP: 3.0,
+    chess.ROOK: 5.0,
+    chess.QUEEN: 9.0,
+}
+
+def statically_score_move(move: chess.Move, fen: str) -> float:
+    board = chess.Board(fen)
+    board.push(move)
+
+    if board.is_checkmate():
+        return CHECKMATE_VALUE
+
+    # Check captures
+    board.pop()
+    if board.is_capture(move):
+        piece_type = board.piece_type_at(move.to_square)
+
+        if piece_type is None:
+            assert board.is_en_passant(move)
+            return piece_to_value[chess.PAWN]
+
+        return piece_to_value[piece_type]
+
+    return 0.0
+
 class Node:
     def __init__(self, prior: float, current_player: chess.Color):
         self.prior = prior
@@ -99,6 +128,36 @@ class Node:
         return f"Node(prior={self.prior}, current_player={self.current_player}, num_visits={self.num_visits}, value_sum={self.value_sum}, state={self.state})"
 
 class AIMCTS(Player):
+    def __init__(self, color: chess.Color):
+        super().__init__(color)
+        self._prior_offset = 1.0
+
+    def _compute_prior(self, state: State) -> list[tuple[chess.Move, float]]:
+        """
+        Use static score evaluation to compute prior probabilities for each move
+        in a given board state. Score is from the perspective of the current
+        player w.r.t. @state.
+        """
+
+        board = chess.Board(state)
+        actions = list(board.legal_moves)
+        prior = np.empty(len(actions))
+
+        for i in range(len(actions)):
+            prior[i] = statically_score_move(actions[i], state)\
+                + self._prior_offset
+
+        normalised_prior = prior / np.sum(prior)
+        return list(zip(actions, normalised_prior))
+
+    def _optimal_move_from_prior(self, state: State) -> Action:
+        """
+        Return the move with the highest prior probability.
+        """
+
+        prior = self._compute_prior(state)
+        return max(prior, key=lambda x: x[1])[0]
+
     def playout(self, state: State) -> float:
         """
         Play a random game from the given board state and return the result.
@@ -107,8 +166,8 @@ class AIMCTS(Player):
         board = chess.Board(state)
 
         while not board.is_game_over():
-            action = np.random.choice(list(board.legal_moves))
-            board.push(action)
+            move = self._optimal_move_from_prior(board.fen())
+            board.push(move)
 
         return result(board)
 
@@ -129,8 +188,8 @@ class AIMCTS(Player):
         # Stage: EXPAND
         current_board = chess.Board(state)
         actions = list(current_board.legal_moves)
-        action_probs = np.ones(len(actions)) / len(actions)
-
+        prior = self._compute_prior(state)
+        _, action_probs = zip(*prior)
 
         root.expand(state, actions, action_probs)
 
@@ -159,7 +218,8 @@ class AIMCTS(Player):
                 # Game has not ended
                 # Stage: EXPAND
                 actions = list(board_at_leaf_node.legal_moves)
-                action_probs = np.ones(len(actions)) / len(actions)
+                prior = self._compute_prior(board_at_leaf_node.fen())
+                _, action_probs = zip(*prior)
                 node.expand(next_state, actions, action_probs)
 
                 # Stage: PLAYOUT
