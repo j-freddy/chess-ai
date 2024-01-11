@@ -1,6 +1,6 @@
 from __future__ import annotations
 import math
-from typing import TypeAlias
+from typing import Optional, TypeAlias
 import chess
 import numpy as np
 
@@ -132,6 +132,23 @@ class AIMCTS(Player):
         super().__init__(color)
         self._prior_offset = 1.0
 
+    def _check_for_mate(self, state: State) -> Optional[chess.Move]:
+        """
+        Return move that leads to checkmate if it exists.
+        """
+
+        board = chess.Board(state)
+        actions = list(board.legal_moves)
+
+        for action in actions:
+            board.push(action)
+            if board.is_checkmate():
+                return action
+
+            board.pop()
+
+        return None
+
     def _compute_prior(self, state: State) -> list[tuple[chess.Move, float]]:
         """
         Use static score evaluation to compute prior probabilities for each move
@@ -249,12 +266,20 @@ class AIMCTS(Player):
             node.num_visits += 1
 
     def choose_move(self, position: str) -> str:
+        # Short-circuit if checkmate exists
+        maybe_mate_move = self._check_for_mate(position)
+
+        if maybe_mate_move is not None:
+            print("Found mate in 1. Not performing MCTS.")
+            return maybe_mate_move.uci()
+
         root = self.run(
             position,
             self.color,
             num_simulations=100,
             num_playouts=1,
         )
+
         print(root)
         action, _ = root.select_child()
         return action.uci()

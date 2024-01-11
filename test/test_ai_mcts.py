@@ -70,3 +70,16 @@ def test_compute_prior():
 def test_optimal_move_from_prior(fen, move):
     ai = AIMCTS(chess.WHITE)
     assert ai._optimal_move_from_prior(fen).uci() == move
+
+@pytest.mark.parametrize("fen, move", [
+    ("rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2", "d8h4"),
+    ("8/5Qbk/p3p1pp/1p2P3/1P3P1P/3q4/3R1P1r/4K3 b - - 13 44", "h2h1"),
+    ("8/3r1pbk/p3p1pp/1p1qP3/1P3P2/P3Q1B1/5P1P/4R1K1 b - - 6 33", None),
+])
+def test_find_mate_in_one(fen, move):
+    ai = AIMCTS(chess.WHITE)
+
+    if move is not None:
+        assert ai._check_for_mate(fen) == chess.Move.from_uci(move)
+    else:
+        assert ai._check_for_mate(fen) is None
