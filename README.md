@@ -54,6 +54,24 @@ For example, to play White against a smart AI, run the command below.
 python -m main -white human -black aimcts
 ```
 
+### Advanced
+
+`uci.py` implements a bare-bones UCI protocol. For example, it can be used to
+connect to a LiChess bot.
+
+This command creates an executable file for the AI engine.
+```
+pyinstaller -F uci.py
+```
+
+The file is located in `dist/uci/uci.exe`.
+
+
+Alternatively, you can also run the UCI engine directly.
+```sh
+python -m uci
+```
+
 ## Contribute
 
 ### Test

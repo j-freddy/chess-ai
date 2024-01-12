@@ -1,5 +1,8 @@
 .coverage
 __pycache__/
+build/
+dist/
 sandbox.py
 todo.txt
+uci.spec
 venv/

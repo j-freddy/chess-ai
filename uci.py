@@ -14,7 +14,7 @@ GUI to engine:
     go ....
     [SKIP] stop
     [SKIP] ponderhit
-    [SKIP] quit
+    [DONE] quit
 
 Engine to GUI:
     [DONE] id name author
@@ -27,6 +27,7 @@ Engine to GUI:
     [SKIP] option ....
 """
 
+import sys
 import chess
 
 from ai.ai_mcts import AIMCTS
@@ -55,10 +56,10 @@ def service_uci_command(command: str, board: chess.Board, ai: Player):
                     # FEN has 6 words
                     fen = "".join(tokens[2:8])
                     board.set_fen(fen)
-                    tokens_moves = tokens[8:]
+                    tokens_moves = tokens[9:]
                 case "startpos":
                     board.reset()
-                    tokens_moves = tokens[2:]
+                    tokens_moves = tokens[3:]
                 case _:
                     raise ValueError("Invalid position command")
 
@@ -70,7 +71,9 @@ def service_uci_command(command: str, board: chess.Board, ai: Player):
         case "go":
             move = ai.choose_move(board.fen())
             print(f"bestmove {move}")
- 
+
+        case "quit":
+            sys.exit()
 
 if __name__=="__main__":
     board = chess.Board()
