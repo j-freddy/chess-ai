@@ -10,42 +10,75 @@ GUI to engine:
     [SKIP] setoption name  [value ]
     [SKIP] register
     [DONE] ucinewgame
-    position [fen  | startpos ]  moves  ....
+    [DONE] position [fen  | startpos ]  moves  ....
     go ....
-    stop
-    ponderhit
-    quit
+    [SKIP] stop
+    [SKIP] ponderhit
+    [SKIP] quit
 
 Engine to GUI:
     [DONE] id name author
     [DONE] uciok
     [DONE] readyok
-    bestmove  [ ponder  ]
-    copyprotection
-    registration
-    info ....
-    option ....
+    [DONE] bestmove  [ ponder  ]
+    [SKIP] copyprotection
+    [SKIP] registration
+    [SKIP] info ....
+    [SKIP] option ....
 """
 
-def service_uci_command(command: str):
-    if command == "uci":
-        # https://lichess.org/@/MirroredBot
-        print("id name MirroredBot")
-        print("id author Freddy Jiang")
-        print("uciok")
-        return
+import chess
 
-    if command == "isready":
-        print("readyok")
-        return
+from ai.ai_mcts import AIMCTS
+from player import Player
 
-    if command == "ucinewgame":
-        return
+# pylint: disable=redefined-outer-name
+def service_uci_command(command: str, board: chess.Board, ai: Player):
+    tokens = command.split()
 
-    
-        
-            
+    match tokens[0]:
+        case "uci":
+            print("id name MirroredBot")
+            print("id author Freddy Jiang")
+            print("uciok")
+
+        case "isready":
+            print("readyok")
+
+        case "ucinewgame":
+            board.reset()
+
+        # position [fen  | startpos ]  moves  ....
+        case "position":
+            match tokens[1]:
+                case "fen":
+                    # FEN has 6 words
+                    fen = "".join(tokens[2:8])
+                    board.set_fen(fen)
+                    tokens_moves = tokens[8:]
+                case "startpos":
+                    board.reset()
+                    tokens_moves = tokens[2:]
+                case _:
+                    raise ValueError("Invalid position command")
+
+            for move in tokens_moves:
+                board.push_uci(move)
+
+        # go [searchmoves  ....] ponder wtime btime winc binc movestogo depth
+        # nodes mate movetime infinite
+        case "go":
+            move = ai.choose_move(board.fen())
+            print(f"bestmove {move}")
+ 
 
 if __name__=="__main__":
+    board = chess.Board()
+    ai = AIMCTS()
+
     while True:
-        service_uci_command(input())
+        service_uci_command(
+            command=input().strip(),
+            board=board,
+            ai=ai,
+        )

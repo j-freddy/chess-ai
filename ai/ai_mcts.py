@@ -128,7 +128,7 @@ class Node:
         return f"Node(prior={self.prior}, current_player={self.current_player}, num_visits={self.num_visits}, value_sum={self.value_sum}, state={self.state})"
 
 class AIMCTS(Player):
-    def __init__(self, color: chess.Color):
+    def __init__(self, color: chess.Color=chess.WHITE):
         super().__init__(color)
         self._prior_offset = 1.0
 
@@ -191,7 +191,6 @@ class AIMCTS(Player):
     def run(
         self,
         state: State,
-        current_player: chess.Color,
         num_simulations=100,
         num_playouts=1,
     ) -> Node:
@@ -200,10 +199,12 @@ class AIMCTS(Player):
         starting from board state @state.
         """
 
+        current_board = chess.Board(state)
+        current_player = current_board.turn
+
         root = Node(0, current_player)
 
         # Stage: EXPAND
-        current_board = chess.Board(state)
         actions = list(current_board.legal_moves)
         prior = self._compute_prior(state)
         _, action_probs = zip(*prior)
@@ -275,7 +276,6 @@ class AIMCTS(Player):
 
         root = self.run(
             position,
-            self.color,
             num_simulations=100,
             num_playouts=1,
         )
