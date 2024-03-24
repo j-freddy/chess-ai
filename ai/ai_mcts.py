@@ -1,5 +1,6 @@
 from __future__ import annotations
 import math
+import time
 from typing import Optional, TypeAlias
 import chess
 import numpy as np
@@ -191,13 +192,25 @@ class AIMCTS(Player):
     def run(
         self,
         state: State,
-        num_simulations=100,
+        time_budget: float,
         num_playouts=1,
-    ) -> Node:
+    ) -> tuple[Node, int]:
         """
-        Perform Monte Carlo tree search: run @self.num_simulations simulations
-        starting from board state @state.
+        Perform Monte Carlo tree search: run simulations starting from board
+        state until time budget is exhausted.
+        
+        Args:
+        - state (State): FEN string representing the current board state
+        - time_budget (float): time budget in seconds
+        - num_playouts (int): for each simulation, the number of playouts per
+            each expanded leaf node
+        
+        Returns:
+        - root (Node): the root node of the MCTS tree
+        - num_simuls (int): the number of simulations performed
         """
+        
+        time_start = time.time()
 
         current_board = chess.Board(state)
         current_player = current_board.turn
@@ -210,8 +223,14 @@ class AIMCTS(Player):
         _, action_probs = zip(*prior)
 
         root.expand(state, actions, action_probs)
+        
+        # Record max time needed for a single simulation
+        max_time_per_simul = 0
+        num_simuls = 0
 
-        for _ in range(num_simulations):
+        while time.time() - time_start < time_budget - max_time_per_simul:
+            time_start_simul = time.time()
+            
             node = root
             search_path = [node]
 
@@ -252,8 +271,14 @@ class AIMCTS(Player):
                 value *= -1
 
             self.backprop(search_path, value, parent.current_player ^ True)
+            
+            max_time_per_simul = max(
+                max_time_per_simul,
+                time.time() - time_start_simul,
+            )
+            num_simuls += 1
 
-        return root
+        return root, num_simuls
 
     def backprop(
         self,
@@ -266,7 +291,7 @@ class AIMCTS(Player):
                 else -value
             node.num_visits += 1
 
-    def choose_move(self, position: str) -> str:
+    def choose_move(self, position: str, time_budget: float=5) -> str:
         # Short-circuit if checkmate exists
         maybe_mate_move = self._check_for_mate(position)
 
@@ -274,12 +299,14 @@ class AIMCTS(Player):
             print("Found mate in 1. Not performing MCTS.")
             return maybe_mate_move.uci()
 
-        root = self.run(
+        root, num_simuls = self.run(
             position,
-            num_simulations=100,
+            time_budget=time_budget,
             num_playouts=1,
         )
 
         print(root)
+        print(f"Number of simulations: {num_simuls}")
+        
         action, _ = root.select_child()
         return action.uci()
