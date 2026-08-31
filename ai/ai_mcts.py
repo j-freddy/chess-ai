@@ -9,6 +9,7 @@ from ai.model import Action, Model, State
 from ai.model_naive import ModelNaive
 from player import Player
 
+
 def result(board: chess.Board) -> float:
     r = board.result()
 
@@ -21,11 +22,14 @@ def result(board: chess.Board) -> float:
 
     return None
 
+
 def ucb_score(parent: Node, child: Node) -> float:
-    prior_score = child.prior * math.sqrt(parent.num_visits) /\
-        (child.num_visits + 1)
+    prior_score = (
+        child.prior * math.sqrt(parent.num_visits) / (child.num_visits + 1)
+    )
     value_score = 0 if child.num_visits == 0 else -child.value()
     return value_score + prior_score
+
 
 class Node:
     def __init__(self, prior: float, current_player: chess.Color):
@@ -63,7 +67,8 @@ class Node:
 
         return best_action, best_child
 
-    def expand(self,
+    def expand(
+        self,
         state: State,
         actions: list[Action],
         action_probs: np.ndarray[float],
@@ -82,7 +87,7 @@ class Node:
                 self.children[action] = Node(
                     prior=prob,
                     # self.current_player is chess.Color which is a bool
-                    current_player=self.current_player ^ True
+                    current_player=self.current_player ^ True,
                 )
 
     def __str__(self) -> str:
@@ -98,11 +103,12 @@ class Node:
         # pylint: disable=line-too-long
         return f"Node(prior={self.prior}, current_player={self.current_player}, num_visits={self.num_visits}, value_sum={self.value_sum}, state={self.state})"
 
+
 class AIMCTS(Player):
     def __init__(
         self,
-        color: chess.Color=chess.WHITE,
-        model: Model=ModelNaive(),
+        color: chess.Color = chess.WHITE,
+        model: Model = ModelNaive(),
     ):
         super().__init__(color)
         self.model = model
@@ -155,18 +161,18 @@ class AIMCTS(Player):
         """
         Perform Monte Carlo tree search: run simulations starting from board
         state until time budget is exhausted.
-        
+
         Args:
         - state (State): FEN string representing the current board state
         - time_budget (float): time budget in seconds
         - num_playouts (int): for each simulation, the number of playouts per
             each expanded leaf node
-        
+
         Returns:
         - root (Node): the root node of the MCTS tree
         - num_simuls (int): the number of simulations performed
         """
-        
+
         time_start = time.time()
 
         current_board = chess.Board(state)
@@ -180,14 +186,14 @@ class AIMCTS(Player):
         _, action_probs = zip(*prior)
 
         root.expand(state, actions, action_probs)
-        
+
         # Record max time needed for a single simulation
         max_time_per_simul = 0
         num_simuls = 0
 
         while time.time() - time_start < time_budget - max_time_per_simul:
             time_start_simul = time.time()
-            
+
             node = root
             search_path = [node]
 
@@ -222,7 +228,7 @@ class AIMCTS(Player):
                     assert False
                 else:
                     assert num_playouts > 0
-                
+
                     acc_value = 0.0
                     for _ in range(num_playouts):
                         acc_value += self.playout(next_state)
@@ -234,7 +240,7 @@ class AIMCTS(Player):
                     value *= -1
 
             self.backprop(search_path, value, parent.current_player ^ True)
-            
+
             max_time_per_simul = max(
                 max_time_per_simul,
                 time.time() - time_start_simul,
@@ -250,11 +256,12 @@ class AIMCTS(Player):
         current_player: chess.Color,
     ):
         for node in reversed(search_path):
-            node.value_sum += value if node.current_player == current_player\
-                else -value
+            node.value_sum += (
+                value if node.current_player == current_player else -value
+            )
             node.num_visits += 1
 
-    def choose_move(self, position: str, time_budget: float=5) -> str:
+    def choose_move(self, position: str, time_budget: float = 5) -> str:
         # Short-circuit if checkmate exists
         maybe_mate_move = self._check_for_mate(position)
 
@@ -270,6 +277,6 @@ class AIMCTS(Player):
 
         print(root)
         print(f"Number of simulations: {num_simuls}")
-        
+
         action, _ = root.select_child()
         return action.uci()

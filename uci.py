@@ -33,6 +33,7 @@ import chess
 from ai.ai_mcts import AIMCTS
 from player import Player
 
+
 # pylint: disable=redefined-outer-name
 def service_uci_command(command: str, board: chess.Board, ai: Player):
     tokens = command.split()
@@ -75,7 +76,8 @@ def service_uci_command(command: str, board: chess.Board, ai: Player):
         case "quit":
             sys.exit()
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     board = chess.Board()
     ai = AIMCTS()
 
