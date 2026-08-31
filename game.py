@@ -2,19 +2,21 @@ import chess
 
 from player import Player
 
+
 class Game:
     def __init__(
         self,
         player_white: Player,
         player_black: Player,
-        start_pos: str=chess.STARTING_FEN,
+        start_pos: str = chess.STARTING_FEN,
     ):
         self.board = chess.Board(start_pos)
         self.player_white = player_white
         self.player_black = player_black
 
-        self.current_player = self.player_white if self.board.turn\
-            else self.player_black
+        self.current_player = (
+            self.player_white if self.board.turn else self.player_black
+        )
 
     def _make_move(self, move: str) -> bool:
         if self.current_player.is_ai:
@@ -51,9 +53,11 @@ class Game:
                 is_valid_move = self._make_move(move)
 
             # Switch players
-            self.current_player = self.player_black\
-                if self.current_player == self.player_white\
+            self.current_player = (
+                self.player_black
+                if self.current_player == self.player_white
                 else self.player_white
+            )
             assert self.current_player.color == self.board.turn
 
             print(self.board)

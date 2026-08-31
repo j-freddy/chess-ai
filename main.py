@@ -1,4 +1,5 @@
 import argparse
+
 import chess
 
 from ai.ai_mcts import AIMCTS
@@ -12,15 +13,15 @@ id_to_player_class = {
     "aimcts": AIMCTS,
 }
 
+
 def player_class_ids() -> str:
     return ", ".join(id_to_player_class.keys())
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-white",
-        type=str,
-        help=f"White player. Options: {player_class_ids()}"
+        "-white", type=str, help=f"White player. Options: {player_class_ids()}"
     )
     parser.add_argument(
         "-black",
@@ -41,7 +42,8 @@ def parse_args():
 
     return player_white_class, player_black_class, args.startpos
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     PlayerWhite, PlayerBlack, start_pos = parse_args()
 
     game = Game(

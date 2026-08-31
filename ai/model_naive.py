@@ -4,10 +4,11 @@ import numpy as np
 from ai.model import Action, State
 from ai.model import Model
 
+
 class ModelNaive(Model):
     def __init__(self):
         super().__init__()
-        
+
         self.checkmate_value = 10000
         self.piece_to_value: dict[chess.PieceType, float] = {
             chess.PAWN: 1.0,
@@ -16,9 +17,9 @@ class ModelNaive(Model):
             chess.ROOK: 5.0,
             chess.QUEEN: 9.0,
         }
-        
+
         self._prior_offset = 1.0
-    
+
     def _statically_score_move(self, move: chess.Move, fen: str) -> float:
         board = chess.Board(fen)
         board.push(move)
@@ -38,7 +39,7 @@ class ModelNaive(Model):
             return self.piece_to_value[piece_type]
 
         return 0.0
-    
+
     def predict(self, state: State) -> list[tuple[Action, float]]:
         """
         Use static score evaluation to compute prior probabilities for each move
@@ -51,8 +52,10 @@ class ModelNaive(Model):
         prior = np.empty(len(actions))
 
         for i in range(len(actions)):
-            prior[i] = self._statically_score_move(actions[i], state)\
+            prior[i] = (
+                self._statically_score_move(actions[i], state)
                 + self._prior_offset
+            )
 
         normalised_prior = prior / np.sum(prior)
         return list(zip(actions, normalised_prior))

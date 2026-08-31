@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 import chess
 
+
 class Player(ABC):
     def __init__(self, color: chess.Color):
         self.is_ai = True

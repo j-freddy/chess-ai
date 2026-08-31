@@ -3,6 +3,7 @@ import chess
 
 from player import Player
 
+
 class AIRandom(Player):
     def choose_move(self, position: str) -> str:
         board = chess.Board(position)
