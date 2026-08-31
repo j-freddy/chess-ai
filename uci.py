@@ -28,20 +28,22 @@ Engine to GUI:
 """
 
 import sys
+
 import chess
 
 from ai.ai_mcts import AIMCTS
+from const import Engine
 from player import Player
 
 
-# pylint: disable=redefined-outer-name
 def service_uci_command(command: str, board: chess.Board, ai: Player):
     tokens = command.split()
 
     match tokens[0]:
         case "uci":
-            print("id name MirroredBot")
-            print("id author Freddy Jiang")
+            # TODO Name and author should be derived from the Player class
+            print(f"id name {Engine.BOT_NAME}")
+            print(f"id author {Engine.AUTHOR}")
             print("uciok")
 
         case "isready":
@@ -58,9 +60,11 @@ def service_uci_command(command: str, board: chess.Board, ai: Player):
                     fen = "".join(tokens[2:8])
                     board.set_fen(fen)
                     tokens_moves = tokens[9:]
+
                 case "startpos":
                     board.reset()
                     tokens_moves = tokens[3:]
+
                 case _:
                     raise ValueError("Invalid position command")
 
