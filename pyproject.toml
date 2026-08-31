@@ -1,7 +1,7 @@
 [project]
 name = "chess-ai"
 version = "0.1.0"
-description = "Add your description here"
+description = "Chess engine with UCI protocol compatibility"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
