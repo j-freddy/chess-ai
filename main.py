@@ -51,4 +51,5 @@ if __name__ == "__main__":
         player_black=PlayerBlack(chess.BLACK),
         start_pos=start_pos,
     )
+
     game.play()
