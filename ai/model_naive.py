@@ -1,8 +1,7 @@
 import chess
 import numpy as np
 
-from ai.model import Action, State
-from ai.model import Model
+from ai.model import Action, Model, State
 
 
 class ModelNaive(Model):
@@ -29,6 +28,7 @@ class ModelNaive(Model):
 
         # Check captures
         board.pop()
+
         if board.is_capture(move):
             piece_type = board.piece_type_at(move.to_square)
 
