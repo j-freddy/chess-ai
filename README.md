@@ -1,6 +1,6 @@
 # Chess AI
 
-See https://lichess.org/@/MirroredBot. It is most likely offline as it is expensive for me to host a designated server to run the bot 😔
+Currently offline: https://lichess.org/@/MirroredBot
 
 ## Usage Guide
 
