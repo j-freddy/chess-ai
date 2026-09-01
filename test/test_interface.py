@@ -1,10 +1,11 @@
 from unittest import mock
+
 import chess
 import pytest
 
+from ai.ai_random import AIRandom
 from game import Game
 from player_human import PlayerHuman
-from ai.ai_random import AIRandom
 
 
 @pytest.mark.parametrize("user_input", ["e4", "e2e4", "invalidmove"])

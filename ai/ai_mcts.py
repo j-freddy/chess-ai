@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import math
 import time
-from typing import Optional
+
 import chess
 import numpy as np
 
@@ -91,11 +92,11 @@ class Node:
                 )
 
     def __str__(self) -> str:
-        sb = f"{repr(self)}\n"
+        sb = f"{self!r}\n"
         sb += str(chess.Board(self.state))
 
         for action, child in self.children.items():
-            sb += f"\n{action}: {repr(child)}"
+            sb += f"\n{action}: {child!r}"
 
         return sb
 
@@ -113,7 +114,7 @@ class AIMCTS(Player):
         super().__init__(color)
         self.model = model
 
-    def _check_for_mate(self, state: State) -> Optional[chess.Move]:
+    def _check_for_mate(self, state: State) -> chess.Move | None:
         """
         Return move that leads to checkmate if it exists.
         """
