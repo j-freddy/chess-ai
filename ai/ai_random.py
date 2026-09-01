@@ -1,4 +1,5 @@
 import random
+
 import chess
 
 from player import Player
