@@ -2,16 +2,15 @@ import chess
 import numpy as np
 import pytest
 
-from ai.model_naive import (
+from chess_ai.models.naive import (
     CHECKMATE_VALUE,
+    PIECE_TO_VALUE,
     PRIOR_OFFSET,
     ModelNaive,
-    piece_to_value,
     statically_score_move,
 )
 
 
-# pylint: disable=line-too-long
 @pytest.mark.parametrize(
     "move, fen, score",
     [
@@ -19,27 +18,27 @@ from ai.model_naive import (
         (
             "d8d5",
             "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
-            piece_to_value[chess.PAWN],
+            PIECE_TO_VALUE[chess.PAWN],
         ),
         (
             "d3e4",
             "r3kb1r/ppqn1ppp/2p1p3/8/3Pn3/3Q1N1P/PPP2PP1/R1B2RK1 w kq - 0 12",
-            piece_to_value[chess.KNIGHT],
+            PIECE_TO_VALUE[chess.KNIGHT],
         ),
         (
             "f5d3",
             "rn2kb1r/ppq2ppp/2p1pn2/5b2/3P4/2NB1N1P/PPP2PP1/R1BQ1RK1 b kq - 1 9",
-            piece_to_value[chess.BISHOP],
+            PIECE_TO_VALUE[chess.BISHOP],
         ),
         (
             "c5d6",
             "2k2r2/pp2qp2/2prpn1p/2P3p1/3P4/7P/PP2QPP1/R2R2K1 w - - 0 23",
-            piece_to_value[chess.ROOK],
+            PIECE_TO_VALUE[chess.ROOK],
         ),
         (
             "d6e5",
             "2k2r2/pp3p2/2pqpn1p/4Q1p1/3P4/7P/PP3PP1/R2R2K1 b - - 1 24",
-            piece_to_value[chess.QUEEN],
+            PIECE_TO_VALUE[chess.QUEEN],
         ),
     ],
 )
@@ -65,7 +64,7 @@ def test_predict():
 
     original_values = prior_values * factor - PRIOR_OFFSET
 
-    assert original_values[-2] == pytest.approx(piece_to_value[chess.KNIGHT])
-    assert original_values[-3] == pytest.approx(piece_to_value[chess.PAWN])
+    assert original_values[-2] == pytest.approx(PIECE_TO_VALUE[chess.KNIGHT])
+    assert original_values[-3] == pytest.approx(PIECE_TO_VALUE[chess.PAWN])
     assert original_values[-4] == pytest.approx(0)
     assert original_values[0] == pytest.approx(0)

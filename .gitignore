@@ -4,5 +4,5 @@ build/
 dist/
 sandbox.py
 todo.txt
-uci.spec
+chess-ai-uci.spec
 venv/

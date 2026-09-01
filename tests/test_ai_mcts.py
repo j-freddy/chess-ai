@@ -1,9 +1,8 @@
-# pylint: disable=protected-access
-
 import chess
 import pytest
 
-from ai.ai_mcts import AIMCTS, result
+from chess_ai.players import AIMCTS
+from chess_ai.players.mcts.tree import outcome_value
 
 
 @pytest.mark.parametrize(
@@ -15,9 +14,8 @@ from ai.ai_mcts import AIMCTS, result
         ("7k/8/6Q1/3BK3/8/8/8/8 b - - 20 81", 0.0),
     ],
 )
-def test_result_of_board_is_correctly_encoded(fen, value):
-    board = chess.Board(fen)
-    assert result(board) == value
+def test_outcome_value_of_board_is_correctly_encoded(fen, value):
+    assert outcome_value(chess.Board(fen)) == value
 
 
 # TODO
@@ -41,8 +39,7 @@ def test_ucb_score():
     ],
 )
 def test_optimal_move_from_prior(fen, move):
-    ai = AIMCTS(chess.WHITE)
-    assert ai._optimal_move_from_prior(fen).uci() == move
+    assert AIMCTS()._optimal_move_from_prior(fen).uci() == move
 
 
 @pytest.mark.parametrize(
@@ -57,9 +54,14 @@ def test_optimal_move_from_prior(fen, move):
     ],
 )
 def test_find_mate_in_one(fen, move):
-    ai = AIMCTS(chess.WHITE)
+    ai = AIMCTS()
 
     if move is not None:
         assert ai._check_for_mate(fen) == chess.Move.from_uci(move)
     else:
         assert ai._check_for_mate(fen) is None
+
+
+def test_search_without_playouts_is_not_supported():
+    with pytest.raises(NotImplementedError):
+        AIMCTS().run(chess.STARTING_FEN, time_budget=0.1, num_playouts=0)
