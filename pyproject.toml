@@ -1,0 +1,52 @@
+[project]
+name = "chess-ai"
+version = "0.1.0"
+description = "Chess engine with UCI protocol compatibility"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "chess>=1.11.2",
+    "numpy>=2.5.2",
+]
+
+[project.scripts]
+chess-ai = "chess_ai.cli:main"
+chess-ai-uci = "chess_ai.uci.__main__:main"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.16.0",
+    "mypy>=2.3.1",
+    "pytest>=9.1.1",
+    "ruff>=0.16.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/chess_ai"]
+
+# See https://docs.astral.sh/ruff/configuration/
+[tool.ruff]
+line-length = 80
+indent-width = 4
+target-version = "py312"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+[tool.mypy]
+python_version = "3.12"
+exclude_gitignore = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src"]

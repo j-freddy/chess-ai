@@ -1,0 +1,14 @@
+{
+    "editor.tabSize": 4,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnSaveMode": "file",
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.codeActionsOnSave": {
+            // Auto-fix linting issues on save
+            "source.fixAll.ruff": "explicit",
+            // Sort and organise imports on save
+            "source.organizeImports.ruff": "explicit"
+        }
+    }
+}

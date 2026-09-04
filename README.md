@@ -4,45 +4,53 @@ Currently offline: https://lichess.org/@/MirroredBot
 
 ## Usage Guide
 
-### Installation
+### Quick Start
+
+This project uses [uv](https://docs.astral.sh/uv/getting-started/installation/)
+as the package manager.
 
 1. Clone this repository.
 
 ```sh
 git clone https://github.com/j-freddy/chess-ai
-```
-
-2. Create virtual environment with Python 3.10+.
-
-```sh
-# Go inside repo
 cd chess-ai
-# Check Python 3.10+ is used
-python --version
-# Create virtual environment
-python -m venv venv
-# Activate virtual environment
-source venv/bin/activate
 ```
 
-3. Install dependencies.
+2. Create virtual environment with Python 3.12+.
 
 ```sh
-pip install -r requirements.txt
+uv venv --python 3.12
 ```
 
-To check everything is set up correctly, try playing a game.
+3. Activate virtual environment.
+
+```sh
+source .venv/bin/activate
+```
+
+4. Install the package and its dependencies.
+
+```sh
+uv sync --no-dev
+```
+
+If everything has been set up correctly, you can now run the command below.
 ```sh
 # Press Ctrl+C to exit
-python -m main -white human -black human
+chess-ai -white human -black human
 # Or observe 2 bots play
-python -m main -white airandom -black airandom
+chess-ai -white airandom -black airandom
 ```
 
-### Usage
+Equivalently, without the installed script:
+```sh
+python -m chess_ai -white airandom -black airandom
+```
+
+### Configuration
 
 ```sh
-usage: main.py [-h] [-white WHITE] [-black BLACK] [-startpos STARTPOS]
+usage: chess-ai [-h] -white WHITE -black BLACK [-startpos STARTPOS]
 
 options:
   -h, --help          show this help message and exit
@@ -53,40 +61,87 @@ options:
 
 For example, to play White against a smart AI, run the command below.
 ```sh
-python -m main -white human -black aimcts
+chess-ai -white human -black aimcts
 ```
 
-### Advanced
+### Export UCI
 
-`uci.py` implements a bare-bones UCI protocol. For example, it can be used to
-connect to a LiChess bot.
+`chess_ai.uci` implements a bare-bones UCI protocol. For example, it can be used
+to connect to a LiChess bot.
 
-This command creates an executable file for the AI engine.
-```
-pyinstaller -F uci.py
-```
-
-The file is located in `dist/uci/uci.exe`.
-
-
-Alternatively, you can also run the UCI engine directly.
+Run the UCI engine directly:
 ```sh
-python -m uci
+chess-ai-uci
+# Or: python -m chess_ai.uci
 ```
 
-## Contribute
-
-### Test
-
+To build a standalone executable for the engine:
 ```sh
-# Run tests
-pytest
-# Run tests with coverage report
-pytest --cov
+pyinstaller -F -n chess-ai-uci --paths src src/chess_ai/uci/__main__.py
 ```
 
-### Update Dependencies
+The file is located in `dist/chess-ai-uci`.
+
+## Development Guide
+
+Read this section if you want to make changes or contribute to this repository.
+
+### Installation
+
+1. Go through [Quick Start](#quick-start) in the Usage Guide.
+
+2. Install dev dependencies.
 
 ```sh
-pip freeze > requirements.txt
+uv sync --dev
+```
+
+3. On Visual Studio Code, install the [Ruff
+   Extension](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff).
+   The settings in `.vscode/` configures Ruff to format and lint your code on
+   save.
+
+### Project Layout
+
+```
+src/chess_ai/
+    cli.py              Command line entry point
+    game.py             Game loop and move validation
+    chess_types.py      State and Action aliases shared across the package
+    players/            Player abstraction and its implementations
+        base.py         Player: chooses a legal move for a position
+        human.py        Human: reads and validates moves from stdin
+        ai.py           AI: a Player that identifies itself and has a budget
+        ai_random.py    AIRandom
+        mcts/           AIMCTS and its Monte Carlo search tree
+    models/             Position evaluators used by AIMCTS
+    uci/                UCI protocol implementation and engine entry point
+tests/                  Mirrors the package
+```
+
+A `Player` promises to return a move that is legal in the position it is given.
+`Human` upholds that promise by re-prompting until the input parses to a legal
+move. `Game` verifies the promise regardless and raises `IllegalMoveError` if a
+player breaks it, so a faulty engine stops the game with a clear report rather
+than a traceback.
+
+All tool configuration lives in `pyproject.toml`.
+
+### Static Analysis
+
+```sh
+# Lint
+ruff check --fix
+
+# Type check
+mypy .
+
+# Format
+ruff format
+```
+
+### Testing
+
+```sh
+coverage run -m pytest -sv -o log_cli=true && coverage report -m
 ```
