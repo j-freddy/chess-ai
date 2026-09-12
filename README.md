@@ -36,15 +36,14 @@ uv sync --no-dev
 
 If everything has been set up correctly, you can now run the command below.
 ```sh
-# Press Ctrl+C to exit
+# Human vs Human
 chess-ai -white human -black human
-# Or observe 2 bots play
-chess-ai -white airandom -black airandom
-```
 
-Equivalently, without the installed script:
-```sh
-python -m chess_ai -white airandom -black airandom
+# AI (random) vs AI (random)
+chess-ai -white airandom -black airandom
+
+# Without using installed script
+python -m chess_ai -white human -black human
 ```
 
 ### Configuration
