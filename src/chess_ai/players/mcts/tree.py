@@ -64,6 +64,26 @@ class Node:
             key=lambda item: ucb_score(self, item[1]),
         )
 
+    def select_best_action(self) -> Action:
+        """
+        Return the most promising action once the search is over.
+
+        Visit count is the statistic to read off here, not the UCB score: UCB
+        deliberately inflates rarely visited children so that the search keeps
+        exploring, which is exactly the wrong bias to apply when committing to
+        a move. Ties are broken by the child's value, from the perspective of
+        the player to move at this node.
+        """
+
+        if not self.children:
+            raise ValueError("Cannot select a child of an unexpanded node")
+
+        action, _ = max(
+            self.children.items(),
+            key=lambda item: (item[1].num_visits, -item[1].value()),
+        )
+        return action
+
     def expand(
         self,
         state: State,

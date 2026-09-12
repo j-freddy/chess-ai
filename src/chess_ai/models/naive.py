@@ -15,16 +15,23 @@ PIECE_TO_VALUE: dict[chess.PieceType, float] = {
 PRIOR_OFFSET = 1.0
 
 
-def statically_score_move(move: chess.Move, fen: str) -> float:
-    board = chess.Board(fen)
-    board.push(move)
+def score_move_on_board(board: chess.Board, move: chess.Move) -> float:
+    """
+    Score @move on @board, leaving @board unchanged.
 
-    if board.is_checkmate():
+    Taking the board rather than a FEN keeps this off the search's hot path:
+    parsing a FEN once per position instead of once per candidate move is
+    worth roughly an order of magnitude in playout throughput.
+    """
+
+    board.push(move)
+    is_checkmate = board.is_checkmate()
+    board.pop()
+
+    if is_checkmate:
         return CHECKMATE_VALUE
 
     # Check captures
-    board.pop()
-
     if board.is_capture(move):
         piece_type = board.piece_type_at(move.to_square)
 
@@ -35,6 +42,10 @@ def statically_score_move(move: chess.Move, fen: str) -> float:
         return PIECE_TO_VALUE[piece_type]
 
     return 0.0
+
+
+def statically_score_move(move: chess.Move, fen: str) -> float:
+    return score_move_on_board(chess.Board(fen), move)
 
 
 class ModelNaive(Model):
@@ -50,7 +61,7 @@ class ModelNaive(Model):
 
         prior = np.array(
             [
-                statically_score_move(action, state) + PRIOR_OFFSET
+                score_move_on_board(board, action) + PRIOR_OFFSET
                 for action in actions
             ]
         )

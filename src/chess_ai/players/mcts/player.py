@@ -1,3 +1,5 @@
+import random
+import sys
 import time
 
 import chess
@@ -17,9 +19,11 @@ class AIMCTS(AI):
         self,
         model: Model | None = None,
         time_budget: float = 5.0,
+        rng: random.Random | None = None,
     ):
         super().__init__(time_budget)
         self.model = ModelNaive() if model is None else model
+        self.rng = random.Random() if rng is None else rng
 
     def _check_for_mate(self, state: State) -> Action | None:
         """
@@ -46,15 +50,30 @@ class AIMCTS(AI):
         prior = self.model.predict(state)
         return max(prior, key=lambda x: x[1])[0]
 
+    def _sample_move_from_prior(self, state: State) -> Action:
+        """
+        Sample a move in proportion to its prior probability.
+        """
+
+        prior = self.model.predict(state)
+        actions, action_probs = zip(*prior, strict=True)
+        return self.rng.choices(actions, weights=action_probs, k=1)[0]
+
     def playout(self, state: State) -> float:
         """
-        Play a random game from the given board state and return the result.
+        Play a random game from the given board state and return the result,
+        from White's perspective.
+
+        Moves are sampled from the prior rather than taken greedily. A greedy
+        playout is a pure function of the state, so repeating it adds no
+        information and the Monte Carlo average collapses to a single
+        deterministic evaluation.
         """
 
         board = chess.Board(state)
 
         while not board.is_game_over():
-            move = self._optimal_move_from_prior(board.fen())
+            move = self._sample_move_from_prior(board.fen())
             board.push(move)
 
         value = outcome_value(board)
@@ -97,15 +116,15 @@ class AIMCTS(AI):
         root = Node(0, current_player)
 
         # Stage: EXPAND
-        actions: tuple[Action, ...] | list[Action] = list(
-            current_board.legal_moves
-        )
-
-        if not actions:
+        if not current_board.legal_moves:
             raise ValueError(f"No legal moves in position: {state}")
 
+        # Take the moves from the model alongside their probabilities. Pairing
+        # the model's probabilities with a separately built move list only
+        # works while the model happens to enumerate moves in the same order.
         prior = self.model.predict(state)
-        _, action_probs = zip(*prior, strict=True)
+        actions: tuple[Action, ...]
+        actions, action_probs = zip(*prior, strict=True)
 
         root.expand(state, actions, action_probs)
 
@@ -155,11 +174,14 @@ class AIMCTS(AI):
                 )
                 value = acc_value / num_playouts
 
-                # Get value from perspective of other player
-                if node.current_player == chess.BLACK:
-                    value *= -1
+            # Both a finished game and a playout are scored from White's
+            # perspective, but backprop expects the leaf player's perspective.
+            # This flip has to cover the terminal case too, otherwise
+            # delivering checkmate is recorded as a win for the mated player.
+            if node.current_player == chess.BLACK:
+                value *= -1
 
-            self.backprop(search_path, value, parent.current_player ^ True)
+            self.backprop(search_path, value, node.current_player)
 
             max_time_per_simul = max(
                 max_time_per_simul,
@@ -186,13 +208,14 @@ class AIMCTS(AI):
         maybe_mate_move = self._check_for_mate(state)
 
         if maybe_mate_move is not None:
-            print("Found mate in 1. Not performing MCTS.")
+            print("Found mate in 1. Not performing MCTS.", file=sys.stderr)
             return maybe_mate_move
 
         root, num_simuls = self.run(state, time_budget=self.time_budget)
 
-        print(root)
-        print(f"Number of simulations: {num_simuls}")
+        # Diagnostics go to stderr: stdout is the UCI channel and a GUI will
+        # try to parse anything written there as a protocol command.
+        print(root, file=sys.stderr)
+        print(f"Number of simulations: {num_simuls}", file=sys.stderr)
 
-        action, _ = root.select_child()
-        return action
+        return root.select_best_action()

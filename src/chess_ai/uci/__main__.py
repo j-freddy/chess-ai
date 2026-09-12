@@ -9,8 +9,14 @@ def main() -> None:
     ai = AIMCTS()
 
     while True:
+        try:
+            command = input()
+        except (EOFError, KeyboardInterrupt):
+            # The GUI closed the pipe without sending "quit"
+            return
+
         service_uci_command(
-            command=input().strip(),
+            command=command.strip(),
             board=board,
             ai=ai,
         )
