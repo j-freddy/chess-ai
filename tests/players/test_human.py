@@ -12,7 +12,7 @@ AMBIGUOUS_FEN = "4k3/8/8/8/8/2N5/8/4K1N1 w - - 0 1"
     "entered, expected_uci",
     [("e4", "e2e4"), ("e2e4", "e2e4"), ("Nf3", "g1f3")],
 )
-def test_human_returns_the_entered_move(entered, expected_uci):
+def test_human_returns_the_entered_move(entered: str, expected_uci: str):
     with mock.patch("builtins.input", return_value=entered):
         move = Human().choose_move(chess.STARTING_FEN)
 
@@ -36,7 +36,11 @@ def test_human_can_exit_the_game():
     ],
 )
 def test_human_reprompts_until_the_move_is_legal(
-    state, entered, message, recovery, capsys
+    state: str,
+    entered: str,
+    message: str,
+    recovery: str,
+    capsys: pytest.CaptureFixture[str],
 ):
     with mock.patch("builtins.input", side_effect=[entered, recovery]):
         move = Human().choose_move(state)

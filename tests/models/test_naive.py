@@ -42,7 +42,7 @@ from chess_ai.models.naive import (
         ),
     ],
 )
-def test_statically_score_move(move, fen, score):
+def test_statically_score_move(move: str, fen: str, score: float):
     assert statically_score_move(chess.Move.from_uci(move), fen) == score
 
 

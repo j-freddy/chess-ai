@@ -9,7 +9,7 @@ OPENING_FEN = (
 )
 
 
-def test_uci_reports_engine_identity(capsys):
+def test_uci_reports_engine_identity(capsys: pytest.CaptureFixture[str]):
     service_uci_command("uci", chess.Board(), AIMCTS())
     out = capsys.readouterr().out
 
@@ -18,8 +18,9 @@ def test_uci_reports_engine_identity(capsys):
     assert "uciok" in out
 
 
-def test_isready(capsys):
+def test_isready(capsys: pytest.CaptureFixture[str]):
     service_uci_command("isready", chess.Board(), AIRandom())
+
     assert "readyok" in capsys.readouterr().out
 
 
@@ -33,7 +34,7 @@ def test_ucinewgame_resets_the_board():
 
 
 @pytest.mark.parametrize("moves", ["", " moves f8c5", " moves f8c5 e1g1"])
-def test_position_fen_sets_the_board_and_applies_moves(moves):
+def test_position_fen_sets_the_board_and_applies_moves(moves: str):
     board = chess.Board()
     service_uci_command(f"position fen {OPENING_FEN}{moves}", board, AIRandom())
 
@@ -45,7 +46,7 @@ def test_position_fen_sets_the_board_and_applies_moves(moves):
 
 
 @pytest.mark.parametrize("moves", ["", " moves e2e4", " moves e2e4 e7e5"])
-def test_position_startpos_sets_the_board_and_applies_moves(moves):
+def test_position_startpos_sets_the_board_and_applies_moves(moves: str):
     board = chess.Board(OPENING_FEN)
     service_uci_command(f"position startpos{moves}", board, AIRandom())
 
@@ -61,11 +62,12 @@ def test_position_rejects_an_unknown_subcommand():
         service_uci_command("position elsewhere", chess.Board(), AIRandom())
 
 
-def test_go_prints_a_legal_bestmove(capsys):
+def test_go_prints_a_legal_bestmove(capsys: pytest.CaptureFixture[str]):
     board = chess.Board()
     service_uci_command("go", board, AIRandom())
 
     _, uci = capsys.readouterr().out.split()
+
     assert chess.Move.from_uci(uci) in board.legal_moves
 
 

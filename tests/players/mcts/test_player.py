@@ -7,11 +7,13 @@ from chess_ai.players import AIMCTS
 def test_ai_mcts_chooses_a_legal_move():
     ai = AIMCTS()
     board = chess.Board()
+
     assert ai.choose_move(board.fen()) in board.legal_moves
 
 
 def test_ai_mcts_identifies_itself():
     ai = AIMCTS()
+
     assert ai.NAME == "MCTSBot"
     assert str(ai) == "MCTSBot"
 
@@ -30,7 +32,7 @@ def test_ai_mcts_identifies_itself():
         ),
     ],
 )
-def test_optimal_move_from_prior(fen, move):
+def test_optimal_move_from_prior(fen: str, move: str):
     assert AIMCTS()._optimal_move_from_prior(fen).uci() == move
 
 
@@ -45,7 +47,7 @@ def test_optimal_move_from_prior(fen, move):
         ("8/3r1pbk/p3p1pp/1p1qP3/1P3P2/P3Q1B1/5P1P/4R1K1 b - - 6 33", None),
     ],
 )
-def test_find_mate_in_one(fen, move):
+def test_find_mate_in_one(fen: str, move: str | None):
     ai = AIMCTS()
 
     if move is not None:

@@ -13,7 +13,9 @@ from chess_ai.players.mcts.tree import outcome_value
         ("7k/8/6Q1/3BK3/8/8/8/8 b - - 20 81", 0.0),
     ],
 )
-def test_outcome_value_of_board_is_correctly_encoded(fen, value):
+def test_outcome_value_of_board_is_correctly_encoded(
+    fen: str, value: float | None
+):
     assert outcome_value(chess.Board(fen)) == value
 
 

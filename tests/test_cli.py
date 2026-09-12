@@ -8,7 +8,10 @@ def test_two_ais_can_play_from_the_command_line():
     assert cli.main(["-white", "airandom", "-black", "airandom"]) == 0
 
 
-def test_cli_reports_an_illegal_move_instead_of_crashing(monkeypatch, capsys):
+def test_cli_reports_an_illegal_move_instead_of_crashing(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+):
     monkeypatch.setitem(cli.ID_TO_PLAYER_CLASS, "cheat", IllegalPlayer)
 
     assert cli.main(["-white", "cheat", "-black", "airandom"]) == 1
@@ -19,4 +22,4 @@ def test_cli_reports_an_illegal_move_instead_of_crashing(monkeypatch, capsys):
 
 def test_cli_rejects_an_unknown_player():
     with pytest.raises(SystemExit):
-        cli.main(["-white", "nosuchplayer", "-black", "airandom"])
+        cli.main(["-white", "mrpotato", "-black", "airandom"])
