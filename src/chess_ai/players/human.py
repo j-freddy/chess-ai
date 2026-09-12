@@ -1,7 +1,7 @@
 import chess
 
 from chess_ai.chess_types import Action, State
-from chess_ai.players.base import Player
+from chess_ai.players.base import Player, PlayerExit
 
 
 class Human(Player):
@@ -10,6 +10,9 @@ class Human(Player):
 
         while True:
             entered = input("Enter your move: ")
+
+            if entered.strip().lower() == "exit":
+                raise PlayerExit
 
             try:
                 return board.parse_san(entered)

@@ -3,7 +3,7 @@ from unittest import mock
 import chess
 import pytest
 
-from chess_ai.players import Human
+from chess_ai.players import Human, PlayerExit
 
 AMBIGUOUS_FEN = "4k3/8/8/8/8/2N5/8/4K1N1 w - - 0 1"
 
@@ -17,6 +17,15 @@ def test_human_returns_the_entered_move(entered, expected_uci):
         move = Human().choose_move(chess.STARTING_FEN)
 
     assert move.uci() == expected_uci
+
+
+@pytest.mark.parametrize("entered", ["exit", " EXIT "])
+def test_human_can_exit_the_game(entered):
+    with (
+        mock.patch("builtins.input", return_value=entered),
+        pytest.raises(PlayerExit),
+    ):
+        Human().choose_move(chess.STARTING_FEN)
 
 
 @pytest.mark.parametrize(
