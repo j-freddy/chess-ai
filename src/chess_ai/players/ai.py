@@ -5,8 +5,8 @@ from chess_ai.players.base import Player
 
 class AI(Player):
     """
-    A player that chooses its own moves, and can therefore identify itself to a
-    UCI GUI and be given a budget to think within.
+    A machine that chooses its own moves. It can identify itself to a UCI GUI
+    and be given a budget to think within.
     """
 
     NAME: ClassVar[str]

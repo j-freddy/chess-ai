@@ -72,10 +72,9 @@ python -m chess_ai.uci
 
 To build a standalone executable for the engine:
 ```sh
+# Exported to `dist/chess-ai-uci`
 pyinstaller -F -n chess-ai-uci --paths src src/chess_ai/uci/__main__.py
 ```
-
-The file is located in `dist/chess-ai-uci`.
 
 ## Development Guide
 
@@ -96,7 +95,7 @@ uv sync --dev
    The settings in `.vscode/` configures Ruff to format and lint your code on
    save.
 
-### Project Layout
+### Project Structure
 
 ```
 src/chess_ai/
@@ -117,7 +116,7 @@ tests/                  Mirrors the package
 A `Player` promises to return a move that is legal in the position it is given.
 `Human` upholds that promise by re-prompting until the input parses to a legal
 move. `Game` verifies the promise regardless and raises `IllegalMoveError` if a
-player breaks it, so a faulty engine stops the game with a clear report rather
+player breaks it, so a faulty engine stops the game with a clear report, rather
 than a traceback.
 
 All tool configuration lives in `pyproject.toml`.

@@ -4,7 +4,9 @@ from chess_ai.chess_types import Action, State
 
 
 class PlayerExit(Exception):
-    """Raised when a player requests that the game end."""
+    """
+    Raised when a player requests that the game end.
+    """
 
 
 class Player(ABC):

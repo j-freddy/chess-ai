@@ -5,7 +5,7 @@ import pytest
 
 from chess_ai.game import Game, IllegalMoveError
 from chess_ai.players import AIRandom, Human
-from tests.conftest import CHEAT_MOVE, CheatingPlayer
+from tests.conftest import ILLEGAL_MOVE, IllegalPlayer
 
 
 @pytest.mark.parametrize("user_inputs", [["f3", "e5", "g4", "Qh4"]])
@@ -53,14 +53,14 @@ def test_current_player_follows_the_side_to_move():
 
 
 def test_game_stops_when_a_player_returns_an_illegal_move():
-    cheat = CheatingPlayer()
+    cheat = IllegalPlayer()
     game = Game(player_white=cheat, player_black=AIRandom())
 
     with pytest.raises(IllegalMoveError) as excinfo:
         game.play()
 
     assert excinfo.value.player is cheat
-    assert excinfo.value.move == CHEAT_MOVE
+    assert excinfo.value.move == ILLEGAL_MOVE
     assert excinfo.value.state == chess.STARTING_FEN
     # The illegal move was not applied
     assert game.board.fen() == chess.STARTING_FEN

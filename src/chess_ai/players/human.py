@@ -11,7 +11,7 @@ class Human(Player):
         while True:
             entered = input("Enter your move: ")
 
-            if entered.strip().lower() == "exit":
+            if entered == "exit":
                 raise PlayerExit
 
             try:
