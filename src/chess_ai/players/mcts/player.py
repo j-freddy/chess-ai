@@ -1,5 +1,5 @@
+import logging
 import random
-import sys
 import time
 
 import chess
@@ -9,6 +9,8 @@ from chess_ai.models.base import Model
 from chess_ai.models.naive import ModelNaive
 from chess_ai.players.ai import AI
 from chess_ai.players.mcts.tree import Node, outcome_value
+
+logger = logging.getLogger(__name__)
 
 
 class AIMCTS(AI):
@@ -208,14 +210,12 @@ class AIMCTS(AI):
         maybe_mate_move = self._check_for_mate(state)
 
         if maybe_mate_move is not None:
-            print("Found mate in 1. Not performing MCTS.", file=sys.stderr)
+            logger.debug("Found mate in 1. Not performing MCTS.")
             return maybe_mate_move
 
         root, num_simuls = self.run(state, time_budget=self.time_budget)
 
-        # Diagnostics go to stderr: stdout is the UCI channel and a GUI will
-        # try to parse anything written there as a protocol command.
-        print(root, file=sys.stderr)
-        print(f"Number of simulations: {num_simuls}", file=sys.stderr)
+        logger.debug(root)
+        logger.debug(f"Number of simulations: {num_simuls}")
 
         return root.select_best_action()

@@ -1,7 +1,11 @@
+import logging
+
 import chess
 
 from chess_ai.chess_types import Action, State
 from chess_ai.players import Player, PlayerExit
+
+logger = logging.getLogger(__name__)
 
 
 class IllegalMoveError(Exception):
@@ -58,7 +62,7 @@ class Game:
         Raises IllegalMoveError if a player returns a move that is not legal.
         """
 
-        print(self.board)
+        logger.info(self.board)
 
         while not self.board.is_game_over():
             player = self.current_player
@@ -66,19 +70,19 @@ class Game:
             try:
                 move = player.choose_move(state)
             except PlayerExit:
-                print("Game exited.")
+                logger.info("Game exited.")
                 return "exit"
 
             if move not in self.board.legal_moves:
                 raise IllegalMoveError(player, move, state)
 
-            print(
+            logger.info(
                 f"{self.current_colour} ({self.current_player_id}) plays "
                 f"{self.board.san(move)}"
             )
             self.board.push(move)
-            print(self.board)
+            logger.info(self.board)
 
         result = self.board.result()
-        print(f"Game over: {result}")
+        logger.info(f"Game over: {result}")
         return result
