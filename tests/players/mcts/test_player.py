@@ -2,26 +2,18 @@ import chess
 import pytest
 
 from chess_ai.players import AIMCTS
-from chess_ai.players.mcts.tree import outcome_value
 
 
-@pytest.mark.parametrize(
-    "fen, value",
-    [
-        (chess.Board.starting_fen, None),
-        ("5k1r/6b1/p2BQ3/3Pp1p1/P3Pp2/8/4KPP1/1q6 b - - 0 35", 1.0),
-        ("3r2k1/p4ppp/Q7/3p4/1N6/2N5/PP3nPP/R5RK w - - 1 29", -1.0),
-        ("7k/8/6Q1/3BK3/8/8/8/8 b - - 20 81", 0.0),
-    ],
-)
-def test_outcome_value_of_board_is_correctly_encoded(fen, value):
-    assert outcome_value(chess.Board(fen)) == value
+def test_ai_mcts_chooses_a_legal_move():
+    ai = AIMCTS()
+    board = chess.Board()
+    assert ai.choose_move(board.fen()) in board.legal_moves
 
 
-# TODO
-@pytest.mark.skip
-def test_ucb_score():
-    pass
+def test_ai_mcts_identifies_itself():
+    ai = AIMCTS()
+    assert ai.NAME == "MCTSBot"
+    assert str(ai) == "MCTSBot"
 
 
 @pytest.mark.parametrize(

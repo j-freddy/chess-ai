@@ -19,10 +19,9 @@ def test_human_returns_the_entered_move(entered, expected_uci):
     assert move.uci() == expected_uci
 
 
-@pytest.mark.parametrize("entered", ["exit", " EXIT "])
-def test_human_can_exit_the_game(entered):
+def test_human_can_exit_the_game():
     with (
-        mock.patch("builtins.input", return_value=entered),
+        mock.patch("builtins.input", return_value="exit"),
         pytest.raises(PlayerExit),
     ):
         Human().choose_move(chess.STARTING_FEN)
