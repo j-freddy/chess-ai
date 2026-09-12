@@ -32,8 +32,12 @@ class Game:
         self.board = chess.Board(start_pos)
         self.player_white = player_white
         self.player_black = player_black
-        self.player_white_id = player_white_id or type(player_white).__name__.lower()
-        self.player_black_id = player_black_id or type(player_black).__name__.lower()
+        self.player_white_id = (
+            player_white_id or type(player_white).__name__.lower()
+        )
+        self.player_black_id = (
+            player_black_id or type(player_black).__name__.lower()
+        )
 
     @property
     def current_player(self) -> Player:

@@ -10,7 +10,7 @@ from chess_ai.players.mcts.tree import Node, outcome_value
 
 
 class AIMCTS(AI):
-    NAME = "MirroredBot"
+    NAME = "MCTSBot"
     AUTHOR = "Freddy Jiang"
 
     def __init__(
