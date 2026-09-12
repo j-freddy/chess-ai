@@ -12,7 +12,7 @@ def test_cli_reports_an_illegal_move_instead_of_crashing(monkeypatch, capsys):
     monkeypatch.setitem(cli.ID_TO_PLAYER_CLASS, "cheat", IllegalPlayer)
 
     assert cli.main(["-white", "cheat", "-black", "airandom"]) == 1
-    assert "Game stopped: CheatingPlayer returned an illegal move (e2e5)" in (
+    assert "Game stopped: IllegalPlayer returned an illegal move (e2e5)" in (
         capsys.readouterr().out
     )
 

@@ -13,7 +13,7 @@ def test_uci_reports_engine_identity(capsys):
     service_uci_command("uci", chess.Board(), AIMCTS())
     out = capsys.readouterr().out
 
-    assert "id name MirroredBot" in out
+    assert "id name MCTSBot" in out
     assert "id author Freddy Jiang" in out
     assert "uciok" in out
 
