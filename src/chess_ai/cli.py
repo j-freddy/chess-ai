@@ -1,5 +1,6 @@
 import argparse
 import logging
+import sys
 
 import chess
 
@@ -82,7 +83,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> int:
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
 
     args = parse_args(argv)
 
