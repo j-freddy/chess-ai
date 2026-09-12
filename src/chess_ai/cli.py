@@ -15,7 +15,7 @@ ID_TO_PLAYER_CLASS: dict[str, type[Player]] = {
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     player_class_ids = ", ".join(ID_TO_PLAYER_CLASS)
 
-    parser = argparse.ArgumentParser(prog="chess-ai")
+    parser = argparse.ArgumentParser(prog="python -m chess_ai")
     parser.add_argument(
         "-white",
         type=str,
@@ -49,6 +49,8 @@ def main(argv: list[str] | None = None) -> int:
         player_white=ID_TO_PLAYER_CLASS[args.white](),
         player_black=ID_TO_PLAYER_CLASS[args.black](),
         start_pos=args.startpos,
+        player_white_id=args.white,
+        player_black_id=args.black,
     )
 
     try:

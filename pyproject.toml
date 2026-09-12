@@ -9,10 +9,6 @@ dependencies = [
     "numpy>=2.5.2",
 ]
 
-[project.scripts]
-chess-ai = "chess_ai.cli:main"
-chess-ai-uci = "chess_ai.uci.__main__:main"
-
 [dependency-groups]
 dev = [
     "coverage>=7.16.0",

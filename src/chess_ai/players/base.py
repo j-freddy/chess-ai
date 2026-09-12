@@ -3,6 +3,10 @@ from abc import ABC, abstractmethod
 from chess_ai.chess_types import Action, State
 
 
+class PlayerExit(Exception):
+    """Raised when a player requests that the game end."""
+
+
 class Player(ABC):
     @abstractmethod
     def choose_move(self, state: State) -> Action:

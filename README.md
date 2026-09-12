@@ -34,22 +34,19 @@ source .venv/bin/activate
 uv sync --no-dev
 ```
 
-If everything has been set up correctly, you can now run the command below.
+If everything has been set up correctly, you can now run the commands below.
 ```sh
 # Human vs Human
-chess-ai -white human -black human
+python -m chess_ai -white human -black human
 
 # AI (random) vs AI (random)
-chess-ai -white airandom -black airandom
-
-# Without using installed script
-python -m chess_ai -white human -black human
+python -m chess_ai -white airandom -black airandom
 ```
 
 ### Configuration
 
 ```sh
-usage: chess-ai [-h] -white WHITE -black BLACK [-startpos STARTPOS]
+usage: python -m chess_ai [-h] -white WHITE -black BLACK [-startpos STARTPOS]
 
 options:
   -h, --help          show this help message and exit
@@ -60,7 +57,7 @@ options:
 
 For example, to play White against a smart AI, run the command below.
 ```sh
-chess-ai -white human -black aimcts
+python -m chess_ai -white human -black aimcts
 ```
 
 ### Export UCI
@@ -70,8 +67,7 @@ to connect to a LiChess bot.
 
 Run the UCI engine directly:
 ```sh
-chess-ai-uci
-# Or: python -m chess_ai.uci
+python -m chess_ai.uci
 ```
 
 To build a standalone executable for the engine:

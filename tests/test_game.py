@@ -9,10 +9,20 @@ from tests.conftest import CHEAT_MOVE, CheatingPlayer
 
 
 @pytest.mark.parametrize("user_inputs", [["f3", "e5", "g4", "Qh4"]])
-def test_two_humans_can_play_a_game(user_inputs):
+def test_two_humans_can_play_a_game(user_inputs, capsys):
     with mock.patch("builtins.input", side_effect=user_inputs):
         game = Game(player_white=Human(), player_black=Human())
         assert game.play() == "0-1"
+
+    assert "Black (human) plays e5" in capsys.readouterr().out
+
+
+def test_human_can_exit_a_game(capsys):
+    with mock.patch("builtins.input", return_value="exit"):
+        game = Game(player_white=Human(), player_black=Human())
+        assert game.play() == "exit"
+
+    assert "Game exited." in capsys.readouterr().out
 
 
 @pytest.mark.parametrize(

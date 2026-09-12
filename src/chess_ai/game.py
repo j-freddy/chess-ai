@@ -1,7 +1,7 @@
 import chess
 
 from chess_ai.chess_types import Action, State
-from chess_ai.players import Player
+from chess_ai.players import Player, PlayerExit
 
 
 class IllegalMoveError(Exception):
@@ -26,14 +26,26 @@ class Game:
         player_white: Player,
         player_black: Player,
         start_pos: str = chess.STARTING_FEN,
+        player_white_id: str | None = None,
+        player_black_id: str | None = None,
     ):
         self.board = chess.Board(start_pos)
         self.player_white = player_white
         self.player_black = player_black
+        self.player_white_id = player_white_id or type(player_white).__name__.lower()
+        self.player_black_id = player_black_id or type(player_black).__name__.lower()
 
     @property
     def current_player(self) -> Player:
         return self.player_white if self.board.turn else self.player_black
+
+    @property
+    def current_player_id(self) -> str:
+        return self.player_white_id if self.board.turn else self.player_black_id
+
+    @property
+    def current_colour(self) -> str:
+        return "White" if self.board.turn else "Black"
 
     def play(self) -> str:
         """
@@ -47,12 +59,19 @@ class Game:
         while not self.board.is_game_over():
             player = self.current_player
             state = self.board.fen()
-            move = player.choose_move(state)
+            try:
+                move = player.choose_move(state)
+            except PlayerExit:
+                print("Game exited.")
+                return "exit"
 
             if move not in self.board.legal_moves:
                 raise IllegalMoveError(player, move, state)
 
-            print(f"{player} plays {self.board.san(move)}")
+            print(
+                f"{self.current_colour} ({self.current_player_id}) plays "
+                f"{self.board.san(move)}"
+            )
             self.board.push(move)
             print(self.board)
 
